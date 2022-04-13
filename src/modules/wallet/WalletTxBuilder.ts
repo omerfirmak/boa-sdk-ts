@@ -21,7 +21,7 @@ import { Transaction } from "../data/Transaction";
 import { TxInput } from "../data/TxInput";
 import { OutputType } from "../data/TxOutput";
 import { UnspentTxOutput } from "../net/response/UnspentTxOutput";
-import { LockType } from "../script/Lock";
+import { Lock, LockType } from "../script/Lock";
 import { TxBuilder } from "../utils/TxBuilder";
 import { TxCanceller, TxCancelResultCode } from "../utils/TxCanceller";
 import { TxPayloadFee } from "../utils/TxPayloadFee";
@@ -47,7 +47,7 @@ import JSBI from "jsbi";
 /**
  * Definition of a class with elements to be used as an output of a transaction
  */
-export class WalletReceiver implements IWalletReceiver {
+export class WalletPubKeyReceiver implements IWalletReceiver {
     /**
      * The address of the receiver
      */
@@ -66,6 +66,13 @@ export class WalletReceiver implements IWalletReceiver {
     constructor(address: PublicKey, amount: Amount) {
         this.address = address;
         this.amount = amount;
+    }
+
+    /**
+     * The lock for the output
+     */
+     public lock(): Lock {
+        return Lock.fromPublicKey(this.address);
     }
 }
 
@@ -137,7 +144,7 @@ export class WalletReceiverContainer extends EventDispatcher {
     /**
      * The storage of the receivers
      */
-    public items: WalletReceiver[] = [];
+    public items: IWalletReceiver[] = [];
 
     /**
      * Add a receiver
@@ -147,11 +154,11 @@ export class WalletReceiverContainer extends EventDispatcher {
      */
     public add(receiver: IWalletReceiver, replace: boolean = true): boolean {
         if (replace) {
-            const elem = this.items.find((m) => PublicKey.equal(m.address, receiver.address));
+            const elem = this.items.find((m) => Lock.equal(m.lock(), receiver.lock()));
             if (elem !== undefined) elem.amount = receiver.amount;
-            else this.items.push(new WalletReceiver(receiver.address, receiver.amount));
+            else this.items.push(receiver);
         } else {
-            this.items.push(new WalletReceiver(receiver.address, receiver.amount));
+            this.items.push(receiver);
         }
         return true;
     }
@@ -162,7 +169,7 @@ export class WalletReceiverContainer extends EventDispatcher {
      */
     public remove(receiver: IWalletReceiver): boolean {
         const idx = this.items.findIndex(
-            (m) => PublicKey.equal(m.address, receiver.address) && Amount.equal(m.amount, receiver.amount)
+            (m) => Lock.equal(m.lock(), receiver.lock()) && Amount.equal(m.amount, receiver.amount)
         );
         if (idx < 0) return false;
         this.items.splice(idx, 1);
@@ -174,7 +181,8 @@ export class WalletReceiverContainer extends EventDispatcher {
      * @param address The public key
      */
     public exist(address: PublicKey): boolean {
-        return this.items.findIndex((m) => PublicKey.equal(m.address, address)) >= 0;
+        const lock = Lock.fromPublicKey(address);
+        return this.items.findIndex((m) => Lock.equal(m.lock(), lock)) >= 0;
     }
 
     /**
@@ -182,9 +190,10 @@ export class WalletReceiverContainer extends EventDispatcher {
      * @param address the receiver to be removed with this address
      */
     public removeAddress(address: PublicKey): boolean {
+        const lock = Lock.fromPublicKey(address);
         let changed = false;
         while (true) {
-            const idx = this.items.findIndex((m) => PublicKey.equal(m.address, address));
+            const idx = this.items.findIndex((m) => Lock.equal(m.lock(), lock));
             if (idx < 0) break;
             this.items.splice(idx, 1);
             changed = true;
@@ -1150,7 +1159,7 @@ export class WalletTxBuilder extends EventDispatcher {
             });
 
             this._receivers.items.forEach((r) => {
-                builder.addOutput(r.address, r.amount);
+                builder.addOutput(r.lock(), r.amount);
             });
             tx = builder.sign(this._output_type, this._fee_tx, this._fee_payload, this._fee_freezing);
         } catch (e) {
@@ -1242,10 +1251,7 @@ export class WalletTxBuilderSingleReceiver extends WalletTxBuilder {
         this._receiver_address = new PublicKey(address.data);
         if (this._receiver_amount !== undefined) {
             this._receivers.clear();
-            this._receivers.add({
-                address: this._receiver_address,
-                amount: this._receiver_amount,
-            });
+            this._receivers.add(new WalletPubKeyReceiver(this._receiver_address, this._receiver_amount));
             if (changed) await this.calculate();
         }
         if (changed) this.dispatchEvent(Event.CHANGE_RECEIVER);
@@ -1262,10 +1268,7 @@ export class WalletTxBuilderSingleReceiver extends WalletTxBuilder {
         this._receiver_amount = Amount.make(amount);
         if (this._receiver_address !== undefined) {
             this._receivers.clear();
-            this._receivers.add({
-                address: this._receiver_address,
-                amount: this._receiver_amount,
-            });
+            this._receivers.add(new WalletPubKeyReceiver(this._receiver_address, this._receiver_amount));
             if (changed) await this.calculate();
         }
         if (changed) this.dispatchEvent(Event.CHANGE_RECEIVER);

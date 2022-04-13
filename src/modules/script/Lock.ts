@@ -173,6 +173,14 @@ export class Lock {
     public clone(): Lock {
         return new Lock(this.type, this.bytes);
     }
+
+    /**
+     * Compare whether the two locks are the same.
+     * If equal true, otherwise false is returned.
+     */
+     public static equal(a: Lock, b: Lock): boolean {
+        return a.type == b.type && Buffer.compare(a.bytes, b.bytes) === 0;
+    }
 }
 
 /**

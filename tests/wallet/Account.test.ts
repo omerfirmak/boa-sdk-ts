@@ -292,8 +292,8 @@ describe("AccountContainer", () => {
     it("Test WalletReceiverContainer", () => {
         const kps = sample_secret_multi_account.map((m) => sdk.KeyPair.fromSeed(new sdk.SecretKey(m)));
         const receivers = new sdk.WalletReceiverContainer();
-        const receiver0 = { address: kps[0].address, amount: sdk.BOA(100) };
-        const receiver1 = { address: kps[1].address, amount: sdk.BOA(100) };
+        const receiver0 = new sdk.WalletPubKeyReceiver(kps[0].address, sdk.BOA(100));
+        const receiver1 = new sdk.WalletPubKeyReceiver(kps[1].address, sdk.BOA(100));
         receivers.add(receiver0);
         receivers.add(receiver1);
 
@@ -304,7 +304,7 @@ describe("AccountContainer", () => {
         receivers.remove(receiver0);
         assert.strictEqual(receivers.exist(kps[0].address), false);
 
-        receivers.removeAddress(receiver1.address);
+        receivers.removeAddress(kps[1].address);
         assert.strictEqual(receivers.exist(kps[1].address), false);
     });
 });

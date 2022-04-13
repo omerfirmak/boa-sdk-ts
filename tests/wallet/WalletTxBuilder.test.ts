@@ -466,10 +466,8 @@ describe("Wallet Transaction Builder", function () {
                 sdk.Amount.multiply(spendable, 10 + Math.floor(Math.random() * 80)),
                 100
             );
-            await builder.addReceiver({
-                address: new sdk.PublicKey("boa1xpr00rxtcprlf99dnceuma0ftm9sv03zhtlwfytd5p0dkvzt4ryp595zpjp"),
-                amount: send_amount,
-            });
+            await builder.addReceiver(
+                new sdk.WalletPubKeyReceiver(new sdk.PublicKey("boa1xpr00rxtcprlf99dnceuma0ftm9sv03zhtlwfytd5p0dkvzt4ryp595zpjp"), send_amount));
 
             for (const key_pair of key_pairs) {
                 const account = accounts.add(key_pair.address.toString(), key_pair.secret);
@@ -560,10 +558,8 @@ describe("Wallet Transaction Builder", function () {
                 sdk.Amount.multiply(spendable, 10 + Math.floor(Math.random() * 80)),
                 100
             );
-            await builder.addReceiver({
-                address: new sdk.PublicKey("boa1xpr00rxtcprlf99dnceuma0ftm9sv03zhtlwfytd5p0dkvzt4ryp595zpjp"),
-                amount: send_amount,
-            });
+            await builder.addReceiver(
+                new sdk.WalletPubKeyReceiver(new sdk.PublicKey("boa1xpr00rxtcprlf99dnceuma0ftm9sv03zhtlwfytd5p0dkvzt4ryp595zpjp"), send_amount));
 
             for (const elem of accounts.items) {
                 await elem.checkBalance();
@@ -650,10 +646,8 @@ describe("Wallet Transaction Builder", function () {
         });
 
         const send_amount = sdk.Amount.divide(sdk.Amount.multiply(spendable, 10 + Math.floor(Math.random() * 80)), 100);
-        await builder.addReceiver({
-            address: new sdk.PublicKey("boa1xpr00rxtcprlf99dnceuma0ftm9sv03zhtlwfytd5p0dkvzt4ryp595zpjp"),
-            amount: send_amount,
-        });
+        await builder.addReceiver(
+            new sdk.WalletPubKeyReceiver(new sdk.PublicKey("boa1xpr00rxtcprlf99dnceuma0ftm9sv03zhtlwfytd5p0dkvzt4ryp595zpjp"), send_amount));
 
         for (const elem of accounts.items) {
             await elem.checkBalance();
@@ -793,10 +787,8 @@ describe("Wallet Transaction Builder", function () {
 
         const receiver_address = new sdk.PublicKey("boa1xpr00rxtcprlf99dnceuma0ftm9sv03zhtlwfytd5p0dkvzt4ryp595zpjp");
         const send_amount = sdk.Amount.divide(sdk.Amount.multiply(spendable, 10 + Math.floor(Math.random() * 80)), 100);
-        await builder.addReceiver({
-            address: receiver_address,
-            amount: send_amount,
-        });
+        await builder.addReceiver(
+            new sdk.WalletPubKeyReceiver(receiver_address, send_amount));
 
         for (const elem of accounts.items) {
             await elem.checkBalance();
@@ -880,10 +872,8 @@ describe("Wallet Transaction Builder", function () {
 
         // Add Receiver
         const send_amount = sdk.Amount.divide(sdk.Amount.multiply(spendable, 10 + Math.floor(Math.random() * 80)), 100);
-        await builder.addReceiver({
-            address: new sdk.PublicKey("boa1xpr00rxtcprlf99dnceuma0ftm9sv03zhtlwfytd5p0dkvzt4ryp595zpjp"),
-            amount: send_amount,
-        });
+        await builder.addReceiver(
+            new sdk.WalletPubKeyReceiver(new sdk.PublicKey("boa1xpr00rxtcprlf99dnceuma0ftm9sv03zhtlwfytd5p0dkvzt4ryp595zpjp"), send_amount));
 
         const expected = [];
         expected.push(sdk.Event.CHANGE_RECEIVER);
@@ -926,10 +916,8 @@ describe("Wallet Transaction Builder", function () {
             sdk.Amount.multiply(spendable, 10 + Math.floor(Math.random() * 70)),
             100
         );
-        await builder.addReceiver({
-            address: new sdk.PublicKey("boa1xpr00rxtcprlf99dnceuma0ftm9sv03zhtlwfytd5p0dkvzt4ryp595zpjp"),
-            amount: send_amount2,
-        });
+        await builder.addReceiver(
+            new sdk.WalletPubKeyReceiver(new sdk.PublicKey("boa1xpr00rxtcprlf99dnceuma0ftm9sv03zhtlwfytd5p0dkvzt4ryp595zpjp"), send_amount2));
         expected.push(sdk.Event.CHANGE_SENDER);
         if (!sdk.Amount.equal(old_fee_tx2, builder.fee_tx)) expected.push(sdk.Event.CHANGE_TX_FEE);
         expected.push(sdk.Event.CHANGE_RECEIVER);
@@ -1488,10 +1476,8 @@ describe("Test for the class WalletCancelBuilder", function () {
         });
 
         const send_amount = sdk.Amount.divide(sdk.Amount.multiply(spendable, 10 + Math.floor(Math.random() * 20)), 100);
-        await builder.addReceiver({
-            address: new sdk.PublicKey("boa1xpr00rxtcprlf99dnceuma0ftm9sv03zhtlwfytd5p0dkvzt4ryp595zpjp"),
-            amount: send_amount,
-        });
+        await builder.addReceiver(
+            new sdk.WalletPubKeyReceiver(new sdk.PublicKey("boa1xpr00rxtcprlf99dnceuma0ftm9sv03zhtlwfytd5p0dkvzt4ryp595zpjp"), send_amount));
 
         for (const elem of accounts.items) {
             await elem.checkBalance();

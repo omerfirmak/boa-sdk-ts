@@ -14,6 +14,7 @@
 import { Amount } from "../common/Amount";
 import { Hash } from "../common/Hash";
 import { PublicKey } from "../common/KeyPair";
+import { Lock } from "../script/Lock";
 
 /**
  * A constant that defines the option of a fee.
@@ -192,9 +193,9 @@ export enum WalletMessage {
  */
 export interface IWalletReceiver {
     /**
-     * The address of the receiver
+     * The lock for the output
      */
-    address: PublicKey;
+    lock(): Lock;
 
     /**
      * The amount to transfer

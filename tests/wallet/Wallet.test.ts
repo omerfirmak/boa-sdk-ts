@@ -87,10 +87,7 @@ describe("Wallet", () => {
         });
 
         const res = await wallet.transfer([
-            {
-                address: new sdk.PublicKey("boa1xrc00kar2yqa3jzve9cm4cvuaa8duazkuwrygmqgpcuf0gqww8ye7ua9lkl"),
-                amount: sdk.BOA(10),
-            },
+            new sdk.WalletPubKeyReceiver(new sdk.PublicKey("boa1xrc00kar2yqa3jzve9cm4cvuaa8duazkuwrygmqgpcuf0gqww8ye7ua9lkl"), sdk.BOA(10))
         ]);
 
         const expected = {
@@ -143,10 +140,7 @@ describe("Wallet", () => {
         });
 
         const res = await wallet.transfer([
-            {
-                address: new sdk.PublicKey("boa1xrc00kar2yqa3jzve9cm4cvuaa8duazkuwrygmqgpcuf0gqww8ye7ua9lkl"),
-                amount: sdk.BOA(10),
-            },
+            new sdk.WalletPubKeyReceiver(new sdk.PublicKey("boa1xrc00kar2yqa3jzve9cm4cvuaa8duazkuwrygmqgpcuf0gqww8ye7ua9lkl"), sdk.BOA(10))
         ]);
 
         assert.deepStrictEqual(res.code, sdk.WalletResultCode.FailedAccessToAgora);
@@ -167,10 +161,7 @@ describe("Wallet", () => {
         });
 
         const res = await wallet.transfer([
-            {
-                address: new sdk.PublicKey("boa1xrc00kar2yqa3jzve9cm4cvuaa8duazkuwrygmqgpcuf0gqww8ye7ua9lkl"),
-                amount: sdk.BOA(10),
-            },
+            new sdk.WalletPubKeyReceiver(new sdk.PublicKey("boa1xrc00kar2yqa3jzve9cm4cvuaa8duazkuwrygmqgpcuf0gqww8ye7ua9lkl"), sdk.BOA(10))
         ]);
 
         assert.deepStrictEqual(res.code, sdk.WalletResultCode.FailedAccessToStoa);
@@ -191,10 +182,7 @@ describe("Wallet", () => {
         });
 
         const res = await wallet.transfer([
-            {
-                address: new sdk.PublicKey("boa1xrc00kar2yqa3jzve9cm4cvuaa8duazkuwrygmqgpcuf0gqww8ye7ua9lkl"),
-                amount: sdk.BOA(10),
-            },
+            new sdk.WalletPubKeyReceiver(new sdk.PublicKey("boa1xrc00kar2yqa3jzve9cm4cvuaa8duazkuwrygmqgpcuf0gqww8ye7ua9lkl"), sdk.BOA(10))
         ]);
 
         assert.deepStrictEqual(res.code, sdk.WalletResultCode.NotEnoughAmount);
@@ -329,10 +317,8 @@ describe("Wallet", () => {
             fee: sdk.WalletTransactionFeeOption.Medium,
         });
 
-        const res = await wallet.freeze({
-            address: new sdk.PublicKey("boa1xrc00kar2yqa3jzve9cm4cvuaa8duazkuwrygmqgpcuf0gqww8ye7ua9lkl"),
-            amount: sdk.BOA(10),
-        });
+        const res = await wallet.freeze(
+            new sdk.WalletPubKeyReceiver(new sdk.PublicKey("boa1xrc00kar2yqa3jzve9cm4cvuaa8duazkuwrygmqgpcuf0gqww8ye7ua9lkl"), sdk.BOA(10)));
 
         const expected = {
             code: 0,

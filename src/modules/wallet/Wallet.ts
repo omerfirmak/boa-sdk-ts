@@ -158,7 +158,7 @@ export class Wallet {
             if (payload !== undefined) this.txBuilder.assignPayload(payload);
 
             // Build a transaction
-            receiver.forEach((m) => this.txBuilder.addOutput(m.address, m.amount));
+            receiver.forEach((m) => this.txBuilder.addOutput(m.lock(), m.amount));
             tx = this.txBuilder.sign(output_type, estimatedTxFee, payloadFee, freezingFee);
         } catch (e) {
             return { code: WalletResultCode.FailedBuildTransaction, message: WalletMessage.FailedBuildTransaction };
@@ -217,7 +217,7 @@ export class Wallet {
                 if (payload !== undefined) this.txBuilder.assignPayload(payload);
 
                 // Build a transaction
-                receiver.forEach((m) => this.txBuilder.addOutput(m.address, m.amount));
+                receiver.forEach((m) => this.txBuilder.addOutput(m.lock(), m.amount));
                 tx = this.txBuilder.sign(output_type, txFee, payloadFee, freezingFee);
             } catch (e) {
                 return { code: WalletResultCode.FailedBuildTransaction, message: WalletMessage.FailedBuildTransaction };
@@ -253,7 +253,7 @@ export class Wallet {
             if (payload !== undefined) this.txBuilder.assignPayload(payload);
 
             // Build a transaction
-            receiver.forEach((m) => this.txBuilder.addOutput(m.address, m.amount));
+            receiver.forEach((m) => this.txBuilder.addOutput(m.lock(), m.amount));
             tx = this.txBuilder.sign(output_type, txFee, payloadFee, freezingFee);
         } catch (e) {
             return { code: WalletResultCode.FailedBuildTransaction, message: WalletMessage.FailedBuildTransaction };
