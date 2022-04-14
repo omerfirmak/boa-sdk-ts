@@ -165,6 +165,11 @@ export enum OP {
      * Ditto
      */
     VERIFY_SEQ_SIG = 0x64,
+
+    /**
+     * Same as HASH but uses SHA256
+     */
+    HASH_SHA256 = 0x65,
 }
 
 /**

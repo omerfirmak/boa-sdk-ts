@@ -152,7 +152,8 @@ export class WalletPubKeyReceiver implements IWalletReceiver {
             */
 
         return new Lock(LockType.Script, Script.createOpcodes([
-            OP.HASH, this.hash, OP.CHECK_EQUAL,
+            this.hash.length == Hash.Width ?
+                OP.HASH : OP.HASH_SHA256, this.hash, OP.CHECK_EQUAL,
             OP.IF,
                 this.receiver.data,
             OP.ELSE,
