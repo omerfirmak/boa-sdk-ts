@@ -15,6 +15,7 @@
 import { Amount } from "../common/Amount";
 import { Scalar } from "../common/ECC";
 import { Hash, hashFull, makeUTXOKey } from "../common/Hash";
+import { Height } from "../common/Height";
 import { KeyPair, PublicKey, SecretKey } from "../common/KeyPair";
 import { Constant } from "../data/Constant";
 import { Transaction } from "../data/Transaction";
@@ -22,6 +23,8 @@ import { TxInput } from "../data/TxInput";
 import { OutputType } from "../data/TxOutput";
 import { UnspentTxOutput } from "../net/response/UnspentTxOutput";
 import { Lock, LockType } from "../script/Lock";
+import { OP } from "../script/Opcodes";
+import { Script } from "../script/Script";
 import { TxBuilder } from "../utils/TxBuilder";
 import { TxCanceller, TxCancelResultCode } from "../utils/TxCanceller";
 import { TxPayloadFee } from "../utils/TxPayloadFee";
@@ -73,6 +76,91 @@ export class WalletPubKeyReceiver implements IWalletReceiver {
      */
      public lock(): Lock {
         return Lock.fromPublicKey(this.address);
+    }
+}
+
+/**
+ * Definition of a class with elements to be used as an output of a transaction
+ */
+ export class WalletHTLCReceiver implements IWalletReceiver {
+    /**
+     * The hash of the secret
+     */
+    public hash: Buffer;
+
+    /**
+     * The hash of the secret
+     */
+    public lock_height: Height;
+
+    /**
+     * The address of the sender
+     */
+    public sender: PublicKey;
+
+    /**
+     * The address of the receiver
+     */
+    public receiver: PublicKey;
+
+    /**
+     * The amount to transfer
+     */
+    public amount: Amount;
+
+    /**
+     * Constructor
+     * @param hash the hash of the secret
+     * @param lock_height the expected lock_height in the spending transaction
+     * @param sender the sending public key
+     * @param receiver the receiving public key
+     * @param amount The amount to transfer
+     */
+    constructor(hash: Buffer, lock_height: Height,
+                sender: PublicKey, receiver: PublicKey, amount: Amount) {
+        this.hash = hash;
+        this.lock_height = lock_height;
+        this.sender = sender;
+        this.receiver = receiver;
+        this.amount = amount;
+    }
+
+    /**
+     * The lock for the output
+     */
+     public lock(): Lock {
+        /*
+            Creates an HTLC with the given hash of the secret, the expected lock height,
+            the sender public key, and the receiver public key.
+
+            The sending public key may only spend this HTLC if the lock_height in the
+            tx is >= the lock height in the HTLC, and if the signature matches the
+            sender's public key. The sender passes an invalid / fake preimage to
+            switch to the ELSE branch.
+
+            The receiving public key may only spend this HTLC if it provides the
+            preimage to the hash. There are no time-locks on this branch.
+
+            OP.HASH <hash> OP.CHECK_EQUAL
+            OP_IF
+                <receiver-key>
+            OP_ELSE
+            <lock-height> OP.VERIFY_LOCK_HEIGHT
+            <sender-key>
+
+            OP.CHECK_SIG
+            */
+
+        return new Lock(LockType.Script, Script.createOpcodes([
+            OP.HASH, this.hash, OP.CHECK_EQUAL,
+            OP.IF,
+                this.receiver.data,
+            OP.ELSE,
+                this.lock_height.toBinary(), OP.VERIFY_LOCK_HEIGHT,
+                this.sender.data,
+            OP.END_IF,
+            OP.CHECK_SIG
+        ]));
     }
 }
 

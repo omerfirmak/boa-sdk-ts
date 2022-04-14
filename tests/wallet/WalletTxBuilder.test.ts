@@ -28,6 +28,7 @@ import * as http from "http";
 import * as assert from "assert";
 import URI from "urijs";
 import { Constant } from "../../src";
+import { WalletHTLCReceiver } from "../../lib/modules/wallet/WalletTxBuilder";
 
 const seeds = [
     "SDLFMXEPWO5BNB64TUZQJP5JJUET2P4QFMTMDSPYELC2LZ6UXMSAOIKE",
@@ -819,6 +820,50 @@ describe("Wallet Transaction Builder", function () {
             sdk.PublicKey.equal(m.address, refund_receiver.address)
         );
         assert.ok(refund_sender !== undefined);
+    });
+
+    it("Build HTLC", async () => {
+        const endpoint = {
+            agora: URI("http://localhost").port(agora_port).toString(),
+            stoa: URI("http://localhost").port(stoa_port).toString(),
+        };
+        const wallet_client = new sdk.WalletClient(endpoint);
+        const accounts = new sdk.AccountContainer(wallet_client);
+        const builder = new sdk.WalletTxBuilder(wallet_client);
+
+        makeRandomUTXO();
+        accounts.clear();
+        await builder.clear();
+        await builder.setFeeOption(sdk.WalletTransactionFeeOption.Medium);
+
+        key_pairs.forEach((value, idx) => {
+            accounts.add("Account" + idx.toString(), value.secret);
+        });
+        let spendable = sdk.Amount.make(0);
+        key_pairs.forEach((value, idx) => {
+            const elem = sample_utxos[value.address.toString()];
+            spendable = sdk.Amount.add(spendable, sdk.Amount.make(elem.balance.spendable));
+        });
+
+        const receiver_address = key_pairs[0].address;
+        const sender_address = key_pairs[1].address;
+        const send_amount = sdk.Amount.divide(sdk.Amount.multiply(spendable, 10 + Math.floor(Math.random() * 80)), 100);
+        const lock_height = new sdk.Height("2");
+        const hash = sdk.hashFull("supersecret");
+        await builder.addReceiver(
+            new sdk.WalletHTLCReceiver(hash.toBinary(), lock_height, sender_address, receiver_address, send_amount));
+
+        for (const elem of accounts.items) {
+            await elem.checkBalance();
+        }
+
+        for (const elem of accounts.items) {
+            await builder.addSender(elem, elem.balance.spendable);
+        }
+
+        const res = builder.buildTransaction();
+        assert.deepStrictEqual(res.code, sdk.WalletResultCode.Success);
+        assert.ok(res.data !== undefined);
     });
 
     class FakeUIComponent {

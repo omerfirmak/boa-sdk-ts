@@ -97,4 +97,14 @@ export class Height {
     public getNumberOfBytes(): number {
         return Utils.SIZE_OF_LONG;
     }
+
+    /**
+     * Returns the data in LE binary form
+     */
+    public toBinary(): Buffer
+    {
+        var arr = new ArrayBuffer(this.getNumberOfBytes());
+        JSBI.DataViewSetBigUint64(new DataView(arr), 0, this.value, true);
+        return Buffer.from(arr);
+    }
 }

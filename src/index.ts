@@ -109,6 +109,7 @@ export {
     AccountUTXOSummaryItem,
     AccountUTXOSummary,
     WalletPubKeyReceiver,
+    WalletHTLCReceiver,
     WalletSender,
     WalletReceiverContainer,
     WalletSenderContainer,
