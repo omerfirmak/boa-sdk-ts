@@ -57,7 +57,7 @@ describe("TxBuilder", () => {
     it("When trying to send an amount greater than the amount of UTXO.", () => {
         const destination = new sdk.PublicKey("boa1xrdwryl0ajdd86c45w4zrjf8spmrt7u4l7s5jy64ac3dc78x2ucd7wkakac");
         const builder = new sdk.TxBuilder(owner);
-        const amount = utxo_data1.amount + BigInt(1);
+        const amount = sdk.JSBI.add(utxo_data1.amount, sdk.JSBI.BigInt(1));
         builder.addInput(sdk.OutputType.Payment, utxo_data1.utxo, utxo_data1.amount);
         assert.throws(() => {
             builder.addOutput(destination, amount);

@@ -35,7 +35,7 @@
         "bech32": "^2.0.0",
         "boa-sodium-base-ts": "0.1.0",
         "crc": "^3.8.0",
-        "jsbi": "^3.1.6",
+        "jsbi": "^4.2.1",
         "lodash": "^4.17.19",
         "smart-buffer": "^4.1.0",
         "socket.io-client": "^4.2.0",
