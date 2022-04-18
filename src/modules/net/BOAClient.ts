@@ -707,6 +707,32 @@ export class BOAClient {
                 });
         });
     }
+
+    /**
+     * Request the hash of the Transaction spending a UTXO
+     * @param hash The hash of the UTXO
+     * @returns Promise that resolves or
+     * rejects with response from the Stoa
+     */
+    public getSpenderHash(utxo: Hash): Promise<Hash> {
+        return new Promise<Hash>((resolve, reject) => {
+            const url = uri(this.server_url).directory("spender").filename(utxo.toString());
+
+            Request()
+                .get(url.toString())
+                .then((response: AxiosResponse) => {
+                    if (response.status === 200) {
+                        resolve(new Hash(response.data.toString()));
+                    } else {
+                        // It is not yet defined in Stoa.
+                        reject(handleNetworkError({ response }));
+                    }
+                })
+                .catch((reason: any) => {
+                    reject(handleNetworkError(reason));
+                });
+        });
+    }
 }
 
 export interface IsValidPreimageResponse {
