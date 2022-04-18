@@ -1103,4 +1103,17 @@ describe("BOA Client", () => {
         time_stamp = await boa_client.getHeightToTime(sdk.JSBI.BigInt(11));
         assert.deepStrictEqual(time_stamp, zero + 11 * 60 * 10);
     });
+
+    it("test for getSpenderHash", async () => {
+        // Set URL
+        const stoa_uri = URI("http://localhost").port(stoa_port);
+        const agora_uri = URI("http://localhost").port(agora_port);
+
+        // Create BOA Client
+        const boa_client = new sdk.BOAClient(stoa_uri.toString(), agora_uri.toString());
+
+        const hash = new sdk.Hash("0xf14b935d4c2bf7f120212322526dba336c4771e8df82d26c41e6ce5d0611e7777d5e31db0c4fe14798033a961958fe5f66903826eb1acf717eb8029ed9405577");
+        assert.deepStrictEqual(await boa_client.getSpenderHash(hash), hash);
+
+    });
 });

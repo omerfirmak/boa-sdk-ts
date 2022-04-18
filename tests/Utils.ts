@@ -1186,6 +1186,21 @@ export class TestStoa {
             res.status(200).send(JSON.stringify(sample_txs_pending_client));
         });
 
+        // GET /spender/:utxo
+        this.app.get("/spender/:utxo", (req: express.Request, res: express.Response) => {
+            const utxo_hash: string = String(req.params.utxo);
+
+            let utxo: sdk.Hash;
+            try {
+                utxo = new sdk.Hash(utxo_hash);
+                // just return the same value
+                res.status(200).send(JSON.stringify(utxo));
+            } catch (error) {
+                res.status(400).send(`Invalid value for parameter 'utxo': ${utxo_hash}`);
+                return;
+            }
+        });
+
         this.app.set("port", this.port);
 
         // Listen on provided this.port on this.address.
